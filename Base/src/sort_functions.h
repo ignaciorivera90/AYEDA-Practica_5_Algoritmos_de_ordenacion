@@ -13,13 +13,82 @@ void Swap(Key& a, Key& b) {
 }
 
 template <class Key>
-void PrintSequence(const staticSequence<Key>& seq) {
-  seq.print(std::cout);
-  std::cout << std::endl;
+void baja(staticSequence<Key>& seq, int size, int i) {
+  while (2 * i + 1 < size) {
+    int h1 = 2 * i + 1;
+    int h2 = h1 + 1;
+    int h = h1;
+
+    if (h2 < size && seq[h2] > seq[h1]) {
+      h = h2;
+    }
+
+    if (seq[h] <= seq[i]) {
+      break;
+    } else {
+      Swap(seq[i], seq[h]);
+      i = h;
+    }
+  }
 }
 
 template <class Key>
-void SelectionSort(staticSequence<Key>& seq, unsigned size, bool trace) {
+void Mezcla(staticSequence<Key>& seq, unsigned ini, unsigned mid, unsigned fin) {
+  unsigned i = ini;
+  unsigned j = mid + 1;
+  unsigned k = 0;
+
+  staticSequence<Key> aux(fin - ini + 1);
+
+  while ((i <= mid) && (j <= fin)) {
+    if (seq[i] < seq[j]) {
+      aux[k] = seq[i];
+      ++i;
+    } else {
+      aux[k] = seq[j];
+      ++j;
+    }
+    ++k;
+  }
+
+  while (i <= mid) {
+    aux[k] = seq[i];
+    ++i;
+    ++k;
+  }
+
+  while (j <= fin) {
+    aux[k] = seq[j];
+    ++j;
+    ++k;
+  }
+
+  for (unsigned t = 0; t < fin - ini + 1; ++t) {
+    seq[ini + t] = aux[t];
+  }
+}
+
+template <class Key>
+void DeltaSort(staticSequence<Key>& seq, unsigned size, int delta) {
+  if (delta <= 0) return;
+
+  for (int i = delta; i < static_cast<int>(size); ++i) {
+    Key x = seq[i];
+    int j = i;
+
+    while ((j >= delta) && (x < seq[j - delta])) {
+      seq[j] = seq[j - delta];
+      j -= delta;
+    }
+
+    seq[j] = x;
+  }
+}
+
+template <class Key>
+void SelectionSort(staticSequence<Key>& seq, unsigned size) {
+  if (size < 2) return;
+
   for (unsigned i = 0; i < size - 1; ++i) {
     unsigned min = i;
     for (unsigned j = i + 1; j < size; ++j) {
@@ -27,28 +96,29 @@ void SelectionSort(staticSequence<Key>& seq, unsigned size, bool trace) {
         min = j;
       }
     }
+
     if (min != i) {
-      Swap(seq[i], seq[min]);
-    }
-    if (trace) {
-      PrintSequence(seq);
+      Key x = seq[min];
+      seq[min] = seq[i];
+      seq[i] = x;
     }
   }
 }
 
 template <class Key>
-void BubbleSort(staticSequence<Key>& seq, unsigned size, bool trace) {
+void BubbleSort(staticSequence<Key>& seq, unsigned size) {
+  if (size < 2) return;
+
   for (unsigned i = 1; i < size; ++i) {
     bool swapped = false;
-    for (int j = size - 1; j >= static_cast<int>(i); --j) {
+
+    for (int j = static_cast<int>(size) - 1; j >= static_cast<int>(i); --j) {
       if (seq[j] < seq[j - 1]) {
-        Swap(seq[j], seq[j - 1]);
+        Swap(seq[j - 1], seq[j]);
         swapped = true;
       }
     }
-    if (trace) {
-      PrintSequence(seq);
-    }
+
     if (!swapped) {
       break;
     }
@@ -56,126 +126,37 @@ void BubbleSort(staticSequence<Key>& seq, unsigned size, bool trace) {
 }
 
 template <class Key>
-void Merge(staticSequence<Key>& seq, unsigned ini, unsigned mid, unsigned fin) {
-  std::vector<Key> aux(fin - ini + 1);
+void HeapSort(staticSequence<Key>& seq, unsigned size) {
+  if (size < 2) return;
 
-  unsigned i = ini;
-  unsigned j = mid + 1;
-  unsigned k = 0;
-
-  while (i <= mid && j <= fin) {
-    if (seq[i] < seq[j]) {
-      aux[k++] = seq[i++];
-    } else {
-      aux[k++] = seq[j++];
-    }
+  for (int i = static_cast<int>(size) / 2 - 1; i >= 0; --i) {
+    baja(seq, static_cast<int>(size), i);
   }
 
-  while (i <= mid) {
-    aux[k++] = seq[i++];
-  }
-
-  while (j <= fin) {
-    aux[k++] = seq[j++];
-  }
-
-  for (unsigned t = 0; t < aux.size(); ++t) {
-    seq[ini + t] = aux[t];
-  }
-}
-
-template <class Key>
-void MergeSort(staticSequence<Key>& seq, unsigned ini, unsigned fin, bool trace) {
-  if (ini >= fin) {
-    return;
-  }
-
-  unsigned mid = (ini + fin) / 2;
-  MergeSort(seq, ini, mid, trace);
-  MergeSort(seq, mid + 1, fin, trace);
-  Merge(seq, ini, mid, fin);
-
-  if (trace) {
-    PrintSequence(seq);
-  }
-}
-
-template <class Key>
-void BajaHeap(staticSequence<Key>& seq, unsigned i, unsigned n) {
-  while (2 * i + 1 < n) {
-    unsigned h1 = 2 * i + 1;
-    unsigned h2 = h1 + 1;
-    unsigned h = h1;
-
-    if (h2 < n && seq[h2] > seq[h1]) {
-      h = h2;
-    }
-
-    if (seq[h] <= seq[i]) {
-      break;
-    }
-
-    Swap(seq[i], seq[h]);
-    i = h;
-  }
-}
-
-template <class Key>
-void HeapSort(staticSequence<Key>& seq, unsigned size, bool trace) {
-  for (int i = size / 2 - 1; i >= 0; --i) {
-    BajaHeap(seq, i, size);
-  }
-
-  if (trace) {
-    PrintSequence(seq);
-  }
-
-  for (int i = size - 1; i > 0; --i) {
+  for (int i = static_cast<int>(size) - 1; i > 0; --i) {
     Swap(seq[0], seq[i]);
-    BajaHeap(seq, 0, i);
-
-    if (trace) {
-      PrintSequence(seq);
-    }
+    baja(seq, i, 0);
   }
 }
 
 template <class Key>
-void DeltaSort(staticSequence<Key>& seq, unsigned size, unsigned delta) {
-  for (unsigned i = delta; i < size; ++i) {
-    Key x = seq[i];
-    int j = i;
-
-    while (j >= static_cast<int>(delta) && x < seq[j - delta]) {
-      seq[j] = seq[j - delta];
-      j -= delta;
-    }
-    seq[j] = x;
+void MergeSort(staticSequence<Key>& seq, unsigned ini, unsigned fin) {
+  if (ini < fin) {
+    unsigned mid = (ini + fin) / 2;
+    MergeSort(seq, ini, mid);
+    MergeSort(seq, mid + 1, fin);
+    Mezcla(seq, ini, mid, fin);
   }
 }
 
 template <class Key>
-void ShellSort(staticSequence<Key>& seq, unsigned size, double alpha, bool trace) {
-  if (alpha <= 0.0 || alpha >= 1.0) {
-    throw std::invalid_argument("alpha debe cumplir 0 < alpha < 1");
-  }
+void ShellSort(staticSequence<Key>& seq, unsigned size) {
+  if (size < 2) return;
 
   unsigned delta = size;
   while (delta > 1) {
-    delta = static_cast<unsigned>(delta * alpha);
-    if (delta < 1) {
-      delta = 1;
-    }
-
-    DeltaSort(seq, size, delta);
-
-    if (trace) {
-      PrintSequence(seq);
-    }
-
-    if (delta == 1) {
-      break;
-    }
+    delta = delta / 2;
+    DeltaSort(seq, size, static_cast<int>(delta));
   }
 }
 
