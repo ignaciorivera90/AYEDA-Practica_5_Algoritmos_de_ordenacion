@@ -3,7 +3,16 @@
 
 #include <iostream>
 #include <vector>
+#include <stdexcept>
 #include "sequence.h"
+
+template <class Key>
+void PrintTrace(const staticSequence<Key>& seq, bool trace) {
+  if (trace) {
+    seq.print(std::cout);
+    std::cout << "\n";
+  }
+}
 
 template <class Key>
 void Swap(Key& a, Key& b) {
@@ -25,10 +34,10 @@ void baja(staticSequence<Key>& seq, int size, int i) {
 
     if (seq[h] <= seq[i]) {
       break;
-    } else {
-      Swap(seq[i], seq[h]);
-      i = h;
     }
+
+    Swap(seq[i], seq[h]);
+    i = h;
   }
 }
 
@@ -38,32 +47,25 @@ void Mezcla(staticSequence<Key>& seq, unsigned ini, unsigned mid, unsigned fin) 
   unsigned j = mid + 1;
   unsigned k = 0;
 
-  staticSequence<Key> aux(fin - ini + 1);
+  std::vector<Key> aux(fin - ini + 1);
 
-  while ((i <= mid) && (j <= fin)) {
+  while (i <= mid && j <= fin) {
     if (seq[i] < seq[j]) {
-      aux[k] = seq[i];
-      ++i;
+      aux[k++] = seq[i++];
     } else {
-      aux[k] = seq[j];
-      ++j;
+      aux[k++] = seq[j++];
     }
-    ++k;
   }
 
   while (i <= mid) {
-    aux[k] = seq[i];
-    ++i;
-    ++k;
+    aux[k++] = seq[i++];
   }
 
   while (j <= fin) {
-    aux[k] = seq[j];
-    ++j;
-    ++k;
+    aux[k++] = seq[j++];
   }
 
-  for (unsigned t = 0; t < fin - ini + 1; ++t) {
+  for (unsigned t = 0; t < aux.size(); ++t) {
     seq[ini + t] = aux[t];
   }
 }
@@ -76,7 +78,7 @@ void DeltaSort(staticSequence<Key>& seq, unsigned size, int delta) {
     Key x = seq[i];
     int j = i;
 
-    while ((j >= delta) && (x < seq[j - delta])) {
+    while (j >= delta && x < seq[j - delta]) {
       seq[j] = seq[j - delta];
       j -= delta;
     }
@@ -86,7 +88,7 @@ void DeltaSort(staticSequence<Key>& seq, unsigned size, int delta) {
 }
 
 template <class Key>
-void SelectionSort(staticSequence<Key>& seq, unsigned size) {
+void SelectionSort(staticSequence<Key>& seq, unsigned size, bool trace) {
   if (size < 2) return;
 
   for (unsigned i = 0; i < size - 1; ++i) {
@@ -98,15 +100,15 @@ void SelectionSort(staticSequence<Key>& seq, unsigned size) {
     }
 
     if (min != i) {
-      Key x = seq[min];
-      seq[min] = seq[i];
-      seq[i] = x;
+      Swap(seq[min], seq[i]);
     }
+
+    PrintTrace(seq, trace);
   }
 }
 
 template <class Key>
-void BubbleSort(staticSequence<Key>& seq, unsigned size) {
+void BubbleSort(staticSequence<Key>& seq, unsigned size, bool trace) {
   if (size < 2) return;
 
   for (unsigned i = 1; i < size; ++i) {
@@ -119,6 +121,8 @@ void BubbleSort(staticSequence<Key>& seq, unsigned size) {
       }
     }
 
+    PrintTrace(seq, trace);
+
     if (!swapped) {
       break;
     }
@@ -126,37 +130,53 @@ void BubbleSort(staticSequence<Key>& seq, unsigned size) {
 }
 
 template <class Key>
-void HeapSort(staticSequence<Key>& seq, unsigned size) {
+void HeapSort(staticSequence<Key>& seq, unsigned size, bool trace) {
   if (size < 2) return;
 
   for (int i = static_cast<int>(size) / 2 - 1; i >= 0; --i) {
     baja(seq, static_cast<int>(size), i);
   }
 
+  PrintTrace(seq, trace);
+
   for (int i = static_cast<int>(size) - 1; i > 0; --i) {
     Swap(seq[0], seq[i]);
     baja(seq, i, 0);
+    PrintTrace(seq, trace);
   }
 }
 
 template <class Key>
-void MergeSort(staticSequence<Key>& seq, unsigned ini, unsigned fin) {
+void MergeSort(staticSequence<Key>& seq, unsigned ini, unsigned fin, bool trace) {
   if (ini < fin) {
     unsigned mid = (ini + fin) / 2;
-    MergeSort(seq, ini, mid);
-    MergeSort(seq, mid + 1, fin);
+    MergeSort(seq, ini, mid, trace);
+    MergeSort(seq, mid + 1, fin, trace);
     Mezcla(seq, ini, mid, fin);
+    PrintTrace(seq, trace);
   }
 }
 
 template <class Key>
-void ShellSort(staticSequence<Key>& seq, unsigned size) {
+void ShellSort(staticSequence<Key>& seq, unsigned size, double alpha, bool trace) {
   if (size < 2) return;
+  if (alpha <= 0.0 || alpha >= 1.0) {
+    throw std::invalid_argument("alpha debe cumplir 0 < alpha < 1.");
+  }
 
   unsigned delta = size;
   while (delta > 1) {
-    delta = delta / 2;
+    delta = static_cast<unsigned>(delta * alpha);
+    if (delta < 1) {
+      delta = 1;
+    }
+
     DeltaSort(seq, size, static_cast<int>(delta));
+    PrintTrace(seq, trace);
+
+    if (delta == 1) {
+      break;
+    }
   }
 }
 
