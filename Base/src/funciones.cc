@@ -1,25 +1,27 @@
 #include "funciones.h"
 
-void FillSequenceManual(staticSequence<Nif>& seq, unsigned size) {
-  std::cout << "Introduzca " << size << " elementos:\n";
+#include <iostream>
+#include <fstream>
+#include <stdexcept>
+
+void FillSequenceManual(staticSequence<nif>& seq, unsigned size) {
+  std::cout << "Introduzca " << size << " NIFs:\n";
   for (unsigned i = 0; i < size; ++i) {
-    Nif value;
     std::cout << "Elemento [" << i << "]: ";
-    std::cin >> value;
-    seq[i] = value;
+    std::cin >> seq[i];
   }
 }
 
-void FillSequenceRandom(staticSequence<Nif>& seq, unsigned size) {
+void FillSequenceRandom(staticSequence<nif>& seq, unsigned size) {
   for (unsigned i = 0; i < size; ++i) {
-    seq[i] = Nif();
+    seq[i] = nif();
   }
 }
 
-void FillSequenceFromFile(staticSequence<Nif>& seq, unsigned size, const std::string& filename) {
+void FillSequenceFromFile(staticSequence<nif>& seq, unsigned size, const std::string& filename) {
   std::ifstream file(filename);
   if (!file) {
-    throw std::runtime_error("No se pudo abrir el fichero de entrada: " + filename);
+    throw std::runtime_error("No se pudo abrir el fichero: " + filename);
   }
 
   for (unsigned i = 0; i < size; ++i) {
@@ -27,9 +29,4 @@ void FillSequenceFromFile(staticSequence<Nif>& seq, unsigned size, const std::st
       throw std::runtime_error("El fichero no contiene suficientes elementos.");
     }
   }
-}
-
-void PrintSequence(const staticSequence<Nif>& seq) {
-  seq.print(std::cout);
-  std::cout << "\n";
 }

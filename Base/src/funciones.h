@@ -1,7 +1,12 @@
-#include "staticSequence.h"
+#ifndef FUNCIONES_H_
+#define FUNCIONES_H_
+
+#include <string>
+#include "sequence.h"
 #include "nif.h"
 
-void FillSequenceManual(staticSequence<Nif>& seq, unsigned size);
-void FillSequenceRandom(staticSequence<Nif>& seq, unsigned size);
-void FillSequenceFromFile(staticSequence<Nif>& seq, unsigned size, const std::string& filename);
-void PrintSequence(const staticSequence<Nif>& seq);
+void FillSequenceManual(staticSequence<nif>& seq, unsigned size);
+void FillSequenceRandom(staticSequence<nif>& seq, unsigned size);
+void FillSequenceFromFile(staticSequence<nif>& seq, unsigned size, const std::string& filename);
+
+#endif

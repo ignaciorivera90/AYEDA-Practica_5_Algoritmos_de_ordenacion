@@ -7,6 +7,7 @@
 
 ProgramOptions ArgParser::Parse(int argc, char* argv[]) {
   ProgramOptions options;
+  bool trace_specified = false;
 
   if (argc == 1) {
     PrintUsage(argv[0]);
@@ -61,7 +62,10 @@ ProgramOptions ArgParser::Parse(int argc, char* argv[]) {
       if (i + 1 >= argc) {
         throw std::invalid_argument("Falta el valor de -trace.");
       }
+
       std::string value = argv[++i];
+      trace_specified = true;
+
       if (value == "y") {
         options.trace = true;
       } else if (value == "n") {
@@ -89,11 +93,17 @@ ProgramOptions ArgParser::Parse(int argc, char* argv[]) {
   if (options.size == 0) {
     throw std::invalid_argument("Debe indicar -size <s> con s > 0.");
   }
+
   if (options.ord_method == '\0') {
     throw std::invalid_argument("Debe indicar -ord <m>.");
   }
+
   if (options.init_mode.empty()) {
     throw std::invalid_argument("Debe indicar -init <manual|random|file>.");
+  }
+
+  if (!trace_specified) {
+    throw std::invalid_argument("Debe indicar -trace <y|n>.");
   }
 
   return options;
