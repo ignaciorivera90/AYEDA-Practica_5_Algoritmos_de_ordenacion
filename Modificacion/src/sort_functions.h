@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdexcept>
 #include "sequence.h"
+#include "funciones.h"
 
 template <class Key>
 void PrintTrace(const staticSequence<Key>& seq, bool trace) {
